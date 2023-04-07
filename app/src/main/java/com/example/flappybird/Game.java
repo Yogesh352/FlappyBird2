@@ -200,7 +200,7 @@ public class Game {
 //                System.out.println("distance is " + trial);
 
 
-                if(birdX >=tubeX[i] + topTube.getWidth() -2 && birdX <=tubeX[i] + topTube.getWidth() + 10){
+                if(birdX >=tubeX[i] + topTube.getWidth() -5 && birdX <=tubeX[i] + topTube.getWidth() + 10){
                         birdPassedPipe();
                 }
 
