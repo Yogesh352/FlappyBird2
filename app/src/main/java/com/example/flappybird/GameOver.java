@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class GameOver  extends AppCompatActivity {
     TextView score;
+    TextView highScore;
     private Game game;
 
     @Override
@@ -22,8 +23,11 @@ public class GameOver  extends AppCompatActivity {
         setContentView(R.layout.game_over);
         score= findViewById(R.id.score);
         int points = getIntent().getExtras().getInt("score");
+        highScore= findViewById(R.id.highscore);
+        int highpoints = getIntent().getExtras().getInt("highScore");
 
         score.setText(""+ points);
+        highScore.setText(""+ highpoints);
 
     }
 

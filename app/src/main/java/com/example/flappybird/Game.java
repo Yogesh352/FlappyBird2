@@ -6,6 +6,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -74,10 +75,13 @@ public class Game {
 
     int tubeVelocity = 12;
     int score = 0;
+
     private ReentrantLock lock;
 
     boolean passPipe = false;
-    int resetCounter = 0;
+    SharedPreferences sharedPreferences;
+    int highScore=0;
+
 
 
 
@@ -123,6 +127,9 @@ public class Game {
             textPaint.setFakeBoldText(true);
         }
 
+        sharedPreferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
+         highScore= sharedPreferences.getInt("high_score", 0);
+        System.out.println(highScore);
     }
 
     public void resize(int width, int height) {
@@ -220,8 +227,19 @@ public class Game {
     }
     private void launchGameOver(){
         handler.removeCallbacksAndMessages(null);
+        if (score > highScore){
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putInt("high_score", score);
+            editor.apply();
+        }
         Intent intent = new Intent(context, GameOver.class);
         intent.putExtra("score", score);
+        if(score > highScore) {
+            intent.putExtra("highScore", score);
+        }else{
+            intent.putExtra("highScore", highScore);
+        }
+
         context.startActivity(intent);
         ((Activity) context).finish();
     }
@@ -258,5 +276,14 @@ public class Game {
     public void setScore (int score){
         this.score = score;
     }
+
+    public int getHighScore (){
+        return  highScore;
+    }
+
+    public void setHighScore(int highScore){
+        this.highScore = highScore;
+    }
+
 }
 
