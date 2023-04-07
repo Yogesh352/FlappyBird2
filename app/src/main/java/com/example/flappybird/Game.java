@@ -73,7 +73,6 @@ public class Game {
     private ReentrantLock lock;
 
     boolean passPipe = false;
-    int resetCounter = 0;
 
 
 
@@ -172,21 +171,17 @@ public class Game {
                 canvas.drawBitmap(bottomTube, tubeX[i], tubeY[i] + gap, null);
                 if(birdX>=tubeX[i] - topTube.getWidth()/2 && birdX <=tubeX[i] + topTube.getWidth()){
                     //adjust to make the contact thingy better
+
                     if(birdY - birds[birdFrame].getHeight()/6  <= tubeY[i] || birdY + birds[birdFrame].getHeight()/4>= tubeY[i] + gap) {
                         gameOver = true;
                         launchGameOver();
 
                     }
                 }
-                if(tubeX[i] + topTube.getWidth() == birdX ){
-                    resetCounter = 0;
-                }
 
-                if(birdX >=tubeX[i] + topTube.getWidth() ){
-                    if(resetCounter == 0) {
+
+                if(birdX >=tubeX[i] + topTube.getWidth() && birdX <=tubeX[i] + topTube.getWidth() + 10){
                         birdPassedPipe();
-                        resetCounter++;
-                    }
 
                 }
 
