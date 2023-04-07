@@ -134,13 +134,6 @@ public class Game {
 
         }
     }
-    private void launchGameOver(){
-        handler.removeCallbacksAndMessages(null);
-        Intent intent = new Intent(context, GameOver.class);
-//        intent.putExtra("Score", score);
-        context.startActivity(intent);
-        ((Activity) context).finish();
-    }
 
     @SuppressLint("DefaultLocale")
     private void draw(Canvas canvas) {
@@ -164,6 +157,9 @@ public class Game {
             if (birdY < dHeight - birds[0].getHeight() || velocity < 0) {
                 velocity += gravity; //faster as it falls
                 birdY += velocity;
+            } else{
+                gameOver = true;
+                launchGameOver();
             }
             for(int i = 0 ; i < numberOfTubes; i++) {
                 tubeX[i] -=tubeVelocity;
@@ -209,6 +205,14 @@ public class Game {
 
     public void update() {
     }
+    private void launchGameOver(){
+        handler.removeCallbacksAndMessages(null);
+        Intent intent = new Intent(context, GameOver.class);
+        intent.putExtra("score", score);
+        context.startActivity(intent);
+        ((Activity) context).finish();
+    }
+
 
     public void birdPassedPipe() {
         passPipe = true;

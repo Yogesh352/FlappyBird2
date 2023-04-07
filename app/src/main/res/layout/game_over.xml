@@ -10,24 +10,86 @@
     <TextView
         android:id="@+id/textView"
 
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="100dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="98dp"
+        android:layout_marginBottom="592dp"
         android:gravity="center"
         android:text="Game Over"
-        android:textStyle = "bold"
+        android:textColor="#FFFFFF"
         android:textSize="40dp"
-        />
+        android:textStyle="bold" />
 
-    <Button
-        android:id="@+id/button7"
+    <TextView
+        android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="161dp"
-        android:layout_marginBottom="177dp"
-        android:background="#fff"
+        android:layout_marginEnd="164dp"
+        android:layout_marginBottom="553dp"
+        android:text="Score"
+        android:textColor="#FFFFFF"
+        android:textSize="20dp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="136dp"
+        android:layout_marginBottom="478dp"
+        android:text="High Score"
+        android:textColor="#FFFFFF"
+        android:textSize="20dp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/highscore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginEnd="186dp"
+        android:layout_marginBottom="446dp"
+        android:text="0"
+        android:textColor="#FFFFFF"
+        android:textSize="20dp" />
+
+    <TextView
+        android:id="@+id/score"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginEnd="186dp"
+        android:layout_marginBottom="526dp"
+
+        android:text="0"
+        android:textColor="#FFFFFF"
+        android:textSize="20dp" />
+
+    <Button
+        android:id="@+id/button7"
+        android:layout_width="94dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+
+        android:layout_centerInParent="true"
+        android:layout_marginStart="157dp"
+        android:layout_marginEnd="150dp"
+        android:layout_marginBottom="181dp"
         android:onClick="restart"
-        android:text="Reset" />
+        android:text="Reset"
+        android:background="#ffa500"
+        />
 
 </RelativeLayout>

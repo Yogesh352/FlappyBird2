@@ -11,13 +11,16 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class GameOver  extends AppCompatActivity {
-    TextView gameOver;
+    TextView score;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.game_over);
+        score= findViewById(R.id.score);
+        int points = getIntent().getExtras().getInt("score");
 
+        score.setText(""+ points);
 
     }
 
