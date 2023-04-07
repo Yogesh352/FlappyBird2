@@ -1,5 +1,7 @@
 package com.example.flappybird;
 
+import static android.content.Context.VIBRATOR_SERVICE;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -15,6 +17,7 @@ import android.os.Handler;
 import android.text.TextPaint;
 import android.view.Display;
 import android.view.MotionEvent;
+import android.os.Vibrator;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -41,6 +44,7 @@ public class Game {
     Bitmap topTube, bottomTube;
     Display display;
     Point point;
+    Vibrator v;
 
 
     int dWidth, dHeight;
@@ -99,6 +103,7 @@ public class Game {
 
         birdX  = dWidth/2 - birds[0].getWidth()/2; //controls the location by X axis
         birdY = dHeight/2 - birds[0].getHeight()/2;
+        v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
 
         distanceBetweenTubes = dWidth*3/4;
 
@@ -131,6 +136,10 @@ public class Game {
         if (useCanvas.test(this::draw)) {
 
         }
+    }
+
+    public Vibrator getVibrator(){
+        return v;
     }
 
     @SuppressLint("DefaultLocale")
@@ -175,8 +184,11 @@ public class Game {
 
                     if(birdY - birds[birdFrame].getHeight()/6  <= tubeY[i] || birdY + birds[birdFrame].getHeight()/4>= tubeY[i] + gap) {
                         gameOver = true;
+                        long[] pattern = {0, 100, 1000};
+                        v.vibrate(pattern, 0);
+                        try{Thread.sleep(100);}catch(InterruptedException e){}
+                        v.cancel();
                         launchGameOver();
-
                     }
                 }
 
