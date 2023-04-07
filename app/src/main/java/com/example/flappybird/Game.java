@@ -73,6 +73,7 @@ public class Game {
     private ReentrantLock lock;
 
     boolean passPipe = false;
+    int resetCounter = 0;
 
 
 
@@ -179,10 +180,13 @@ public class Game {
                     }
                 }
 
+//                int trial = tubeX[i] + topTube.getWidth();
+//                System.out.println("birdX is " +  birdX);
+//                System.out.println("distance is " + trial);
 
-                if(birdX >=tubeX[i] + topTube.getWidth() && birdX <=tubeX[i] + topTube.getWidth() + 10){
+
+                if(birdX >=tubeX[i] + topTube.getWidth() -2 && birdX <=tubeX[i] + topTube.getWidth() + 10){
                         birdPassedPipe();
-
                 }
 
             }
