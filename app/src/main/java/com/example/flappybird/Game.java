@@ -159,7 +159,7 @@ public class Game {
             birdFrame = 0;
         }
 
-        if (gameStart == true) {
+        if (gameStart == true && gameOver == false) {
 
             if (birdY < dHeight - birds[0].getHeight() || velocity < 0) {
                 velocity += gravity; //faster as it falls
