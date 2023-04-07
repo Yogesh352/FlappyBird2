@@ -69,7 +69,7 @@ public class Game {
 
     Random random;
 
-    int tubeVelocity = 8;
+    int tubeVelocity = 12;
     int score = 0;
     private ReentrantLock lock;
 
@@ -180,9 +180,10 @@ public class Game {
 
                     }
                 }
-                if(birdX >=tubeX[i] + topTube.getWidth() + distanceBetweenTubes){
+                if(tubeX[i] + topTube.getWidth() == birdX ){
                     resetCounter = 0;
                 }
+
                 if(birdX >=tubeX[i] + topTube.getWidth() ){
                     if(resetCounter == 0) {
                         birdPassedPipe();
