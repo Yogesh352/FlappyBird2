@@ -175,8 +175,8 @@ public class Game {
                 if(birdX>=tubeX[i] - topTube.getWidth()/2 && birdX <=tubeX[i] + topTube.getWidth()){
                     //adjust to make the contact thingy better
                     if(birdY - birds[birdFrame].getHeight()/6  <= tubeY[i] || birdY + birds[birdFrame].getHeight()/4>= tubeY[i] + gap) {
-                        launchGameOver();
                         gameOver = true;
+                        launchGameOver();
 
                     }
                 }
