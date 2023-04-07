@@ -3,6 +3,7 @@ package com.example.flappybird;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -12,9 +13,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class GameOver  extends AppCompatActivity {
     TextView score;
+    private Game game;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState){
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.game_over);
         score= findViewById(R.id.score);
