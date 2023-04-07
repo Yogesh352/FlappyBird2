@@ -4,9 +4,11 @@ import static android.content.Context.VIBRATOR_SERVICE;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -19,6 +21,9 @@ import android.text.TextPaint;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.os.Vibrator;
+
+import com.example.flappybird.database.FeedReaderContract;
+import com.example.flappybird.database.FeedReaderDbHelper;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -37,6 +42,7 @@ public class Game {
 
     private final Paint textPaint = new TextPaint();
 
+    private FeedReaderDbHelper dbHelper;
 
     Handler handler;
     Context context;
@@ -85,7 +91,8 @@ public class Game {
 
 
 
-    public Game(final Predicate<Consumer<Canvas>> useCanvas, Context context) {
+    public Game(final Predicate<Consumer<Canvas>> useCanvas, Context context, FeedReaderDbHelper dbHelper) {
+        this.dbHelper = dbHelper;
         this.useCanvas = useCanvas;
         this.context = context;
         handler = new Handler();
@@ -239,6 +246,13 @@ public class Game {
         }else{
             intent.putExtra("highScore", highScore);
         }
+
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_TITLE, "Player");
+        values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_SUBTITLE, score);
+        long newRowId = db.insert(FeedReaderContract.FeedEntry.TABLE_NAME, null, values);
+//        System.out.println("new record " + newRowId);
 
         context.startActivity(intent);
         ((Activity) context).finish();
