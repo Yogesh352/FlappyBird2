@@ -33,11 +33,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private ScoreKeepingThread scoreKeepingThread;
 
     private GameThread gameThread;
-    private final Game game = new Game(this::sendNotification, this::useCanvas, getContext());
+    private final Game game = new Game( this::useCanvas, getContext());
 
-    private void sendNotification() {
-        NotificationPublisher.showNotification(getContext());
-    }
+//    private void sendNotification() {
+//        NotificationPublisher.showNotification(getContext());
+//    }
 
     private boolean useCanvas(final Consumer<Canvas> onDraw) {
         boolean result = false;
@@ -106,6 +106,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceDestroyed(final SurfaceHolder surfaceHolder) {
+        scoreKeepingThread.stopThread();
+        scoreKeepingThread = null;
         gameThread.stopLoop();
         gameThread = null;
     }
