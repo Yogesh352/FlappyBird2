@@ -33,7 +33,6 @@ public class Game {
 
     private final Paint textPaint = new TextPaint();
 
-    private final Runnable runnable;
 
     Handler handler;
     Context context;
@@ -78,8 +77,7 @@ public class Game {
 
 
 
-    public Game(final Runnable runnable, final Predicate<Consumer<Canvas>> useCanvas, Context context) {
-        this.runnable = runnable;
+    public Game(final Predicate<Consumer<Canvas>> useCanvas, Context context) {
         this.useCanvas = useCanvas;
         this.context = context;
         handler = new Handler();
@@ -197,8 +195,8 @@ public class Game {
         }
 
         if(gameStart == false) {
-           canvas.drawBitmap(birds[birdFrame], birdX,birdY,null);
-            handler.postDelayed(runnable, UPDATE_MILLIS);
+           canvas.drawBitmap(birds[0], birdX,birdY,null);
+//            handler.postDelayed(runnable, UPDATE_MILLIS);
         }
         canvas.drawText(Integer.toString(score), xPos, yPos, textPaint);
 
