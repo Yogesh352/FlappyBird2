@@ -22,7 +22,6 @@ public class ScoreKeepingThread extends Thread {
                         currentScore += 1;
                         game.setScore(currentScore);
 
-                        System.out.println("HEllo");
                         // Notify waiting threads
 
 
