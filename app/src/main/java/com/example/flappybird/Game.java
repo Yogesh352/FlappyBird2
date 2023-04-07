@@ -181,8 +181,11 @@ public class Game {
                 canvas.drawBitmap(bottomTube, tubeX[i], tubeY[i] + gap, null);
                 if(birdX>=tubeX[i] - topTube.getWidth()/2 && birdX <=tubeX[i] + topTube.getWidth()){
                     //adjust to make the contact thingy better
-
-                    if(birdY - birds[birdFrame].getHeight()/6  <= tubeY[i] || birdY + birds[birdFrame].getHeight()/4>= tubeY[i] + gap) {
+//                    System.out.println("height of bird is " + birds[birdFrame].getHeight());
+//                    System.out.println("bird Y is " + birdY);
+//                    int trial = tubeY[i]+gap;
+//                    System.out.println("Tube Y is " +trial);
+                    if(birdY - birds[birdFrame].getHeight()/6  <= tubeY[i] || birdY + birds[birdFrame].getHeight()>= tubeY[i] + gap) {
                         gameOver = true;
                         long[] pattern = {0, 100, 1000};
                         v.vibrate(pattern, 0);

@@ -17,6 +17,15 @@
         android:textColor="#FFFFFF"
         android:textSize="40dp"
         android:textStyle="bold" />
+    <ToggleButton
+        android:id="@+id/toggle_music"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:layout_below="@+id/textView"
+        android:textOff =  "Music Off"
+        android:textOn="Music On"/>
     <ImageButton
         android:id="@+id/imageButton5"
         android:layout_width="wrap_content"
