@@ -95,8 +95,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     }
     @Override
     public void surfaceCreated(final SurfaceHolder surfaceHolder) {
-        scoreKeepingThread = new ScoreKeepingThread(game);
-        scoreKeepingThread.start();
+       scoreKeepingThread = new ScoreKeepingThread(game);
+       scoreKeepingThread.start();
         if ((gameThread == null) || (gameThread.getState() == Thread.State.TERMINATED)) {
             gameThread = new GameThread(game);
         }
