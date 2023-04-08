@@ -17,7 +17,10 @@ public class GamePause extends AppCompatActivity {
 
     }
     public void resume(View view) {
-        game.setPaused(false);
+        Intent intent = new Intent(GamePause.this, GameActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
+
         finish();
     }
 

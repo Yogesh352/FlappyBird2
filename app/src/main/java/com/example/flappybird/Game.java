@@ -172,7 +172,6 @@ public class Game {
             return;
         }
         canvas.drawBitmap(background,null,rect,null);
-        canvas.drawBitmap(pause_button, 0, 0, null);
 
         int xPos = (canvas.getWidth() / 2);
         int yPos = (int) ((canvas.getHeight() / 4)) ;
@@ -237,6 +236,7 @@ public class Game {
 //            handler.postDelayed(runnable, UPDATE_MILLIS);
         }
         canvas.drawText(Integer.toString(score), xPos, yPos, textPaint);
+        canvas.drawBitmap(pause_button, 0, 0, null);
 
     }
 

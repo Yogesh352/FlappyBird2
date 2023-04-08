@@ -12,4 +12,10 @@ public class GameActivity extends Activity{
         //hideStatusBar();
         setContentView(new GameView(this));
     }
+    @Override
+    protected void onResume() {
+        super.onResume();
+//        System.out.println("HEllo");
+
+    }
 }
