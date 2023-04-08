@@ -25,4 +25,10 @@ public class GameActivity extends Activity{
         dbHelper.close();
         super.onDestroy();
     }
+    @Override
+    protected void onResume() {
+        super.onResume();
+//        System.out.println("HEllo");
+
+    }
 }

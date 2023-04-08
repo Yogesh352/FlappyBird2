@@ -1,5 +1,6 @@
 package com.example.flappybird;
 
+import static android.content.ContentValues.TAG;
 import static android.content.Context.VIBRATOR_SERVICE;
 
 import android.annotation.SuppressLint;
@@ -19,9 +20,12 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.text.TextPaint;
+import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.os.Vibrator;
+import android.widget.ImageButton;
+import android.view.View;
 
 import com.example.flappybird.database.FeedReaderContract;
 import com.example.flappybird.database.FeedReaderContract2;
@@ -46,10 +50,14 @@ public class Game {
 
     private FeedReaderDbHelper dbHelper;
 
+
     Handler handler;
     Context context;
     final int UPDATE_MILLIS = 30;
     Bitmap background;
+
+    Bitmap pause_button;
+
     Bitmap topTube, bottomTube;
     Display display;
     Point point;
@@ -70,6 +78,7 @@ public class Game {
 
     boolean gameStart = false;
     boolean gameOver = false;
+    boolean gamePaused = false;
 
     int gap = 400; //distance between top and bottom tube
     int minTubeOffset, maxTubeOffset;
@@ -90,17 +99,25 @@ public class Game {
     SharedPreferences sharedPreferences;
     int highScore=0;
 
+    private int x;
+    private int y;
 
 
 
     public Game(final Predicate<Consumer<Canvas>> useCanvas, Context context, FeedReaderDbHelper dbHelper) {
         this.dbHelper = dbHelper;
+
         this.useCanvas = useCanvas;
         this.context = context;
         handler = new Handler();
         lock = new ReentrantLock();
 
         background = BitmapFactory.decodeResource(context. getResources(), R.drawable.background);
+        pause_button = BitmapFactory.decodeResource(context.getResources(),R.drawable.pause_button);
+        int btnWidth = 250; // set the pause button width
+        int btnHeight = 250; // set the pause button height
+        pause_button = Bitmap.createScaledBitmap(pause_button, btnWidth, btnHeight, false);
+
         topTube = BitmapFactory.decodeResource(context.getResources(),R.drawable.top_tube);
         bottomTube = BitmapFactory.decodeResource(context.getResources(),R.drawable.bottom_tube);
         point = new Point();
@@ -229,6 +246,7 @@ public class Game {
 //            handler.postDelayed(runnable, UPDATE_MILLIS);
         }
         canvas.drawText(Integer.toString(score), xPos, yPos, textPaint);
+        canvas.drawBitmap(pause_button, 0, 0, null);
 
     }
 
@@ -289,6 +307,12 @@ public class Game {
         ((Activity) context).finish();
     }
 
+    private void launchGamePause(){
+        handler.removeCallbacksAndMessages(null);
+        Intent intent = new Intent(context, GamePause.class);
+        context.startActivity(intent);
+        //((Activity) context).finish();
+    }
 
     public void birdPassedPipe() {
         passPipe = true;
@@ -308,13 +332,36 @@ public class Game {
 
     public void click(MotionEvent event) {
         int action = event.getAction();
-        if(action == MotionEvent.ACTION_DOWN){
-            velocity = -30;
-            gameStart = true; //only start upon first click
+//        if(action == MotionEvent.ACTION_DOWN){
+//            velocity = -30;
+//            gameStart = true; //only start upon first click
+//
+//        }
 
+        if (action == MotionEvent.ACTION_DOWN) {
+            float x = event.getX();
+            float y = event.getY();
+            // check if the touch event is inside the pause button
+            if (x >= 0 && x <= pause_button.getWidth() && y >= 0 && y <= pause_button.getHeight()) {
+                gamePaused = !gamePaused; // toggle variable
+                if (gamePaused) {
+                    Log.d("Game", "Game paused");
+                    // handle pause button click
+                    gamePaused = !gamePaused;
+                    launchGamePause();
+                }
+            } else {
+                // handle non-pause button click
+                velocity = -30;
+                gameStart = true; //only start upon first click
+            }
         }
 
     }
+    public void setPaused(boolean paused) {
+        gamePaused = paused;
+    }
+
     public int getScore (){
         return score;
     }
