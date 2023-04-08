@@ -22,6 +22,8 @@ import android.view.View;
 import android.os.Handler;
 import android.graphics.Canvas;
 
+import com.example.flappybird.database.FeedReaderDbHelper;
+
 import java.util.Random;
 import java.util.function.Consumer;
 
@@ -33,7 +35,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private ScoreKeepingThread scoreKeepingThread;
 
     private GameThread gameThread;
-    private final Game game = new Game( this::useCanvas, getContext());
+    private final Game game;
+
+    private FeedReaderDbHelper dbHelper;
 
 //    private void sendNotification() {
 //        NotificationPublisher.showNotification(getContext());
@@ -61,10 +65,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
 
-    public GameView(Context context) {
+    public GameView(Context context, FeedReaderDbHelper dbHelper) {
         super(context);
         handler = new Handler();
         this.context = context;
+        this.dbHelper = dbHelper;
+        this.game = new Game( this::useCanvas, getContext(), dbHelper);
         runnable = new Runnable() {
             @Override
             public void run() {
