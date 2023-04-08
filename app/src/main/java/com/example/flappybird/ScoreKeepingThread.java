@@ -11,30 +11,43 @@ public class ScoreKeepingThread extends Thread {
     @Override
     public void run() {
         while (running) {
-            synchronized (game.getLock()) {
-                if (game.getPassedPipe()) {
+            System.out.println();
+                if (game.getPassedPipe() || game.getCollideBerry() == 1) {
 
-                    try {
-                        game.getLock().wait();
+                        System.out.println("HEllo I am here");
+
+
 
                         // Update score here
                         int currentScore = game.getScore();
                         currentScore += 1;
                         game.setScore(currentScore);
-
+                        if(game.getCollideBerry() == 1) {
+                            game.setBerryCollided(2);
+                        }
                         // Notify waiting threads
+                        game.setPassedPipe(false);
 
 
-                    } catch (InterruptedException e) {
-                        // Release lock
 
+
+
+            } else if (game.getCollideBomb() ==1) {
+
+                    int currentScore = game.getScore();
+                    currentScore -= 1;
+                    game.setScore(currentScore);
+                    if(game.getCollideBomb() == 1) {
+                        game.setBombCollided(2);
                     }
+                    // Notify waiting threads
+                    game.setPassedPipe(false);
+
+
+
+
+
                 }
-                game.setPassedPipe(false);
-                game.getLock().lock();
-                game.getLock().unlock();
-                game.getLock().notifyAll();
-            }
 
 
 

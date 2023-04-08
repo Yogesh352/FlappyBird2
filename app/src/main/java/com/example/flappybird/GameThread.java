@@ -24,22 +24,6 @@ public class GameThread extends Thread {
     public void run() {
         super.run();
         while (isRunning) {
-            synchronized (game.getLock()) {
-                game.getLock().lock();
-                try {
-//                    // Update score here
-//
-//                    // Notify waiting threads
-                    if(game.passPipe == true) {
-                        game.getLock().notifyAll();
-
-                    }
-                } finally {
-                    // Release lock
-                    game.getLock().unlock();
-                }
-            }
-            game.setPassedPipe(false);
             game.draw();
         }
     }
