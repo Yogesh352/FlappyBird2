@@ -11,7 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class GameOver  extends AppCompatActivity {
+public class GameOverActivity  extends AppCompatActivity {
     TextView score;
     TextView highScore;
     private Game game;
@@ -32,7 +32,7 @@ public class GameOver  extends AppCompatActivity {
     }
 
     public void restart(View view){
-        Intent intent = new Intent(GameOver.this, MainActivity.class);
+        Intent intent = new Intent(GameOverActivity.this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         startActivity(intent);

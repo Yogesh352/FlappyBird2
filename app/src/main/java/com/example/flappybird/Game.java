@@ -36,6 +36,8 @@ import com.example.flappybird.database.FeedReaderDbHelper;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -63,11 +65,19 @@ public class Game {
     Bitmap pause_button;
     Bitmap bomb;
 
-    Bitmap topTube, bottomTube;
+    Bitmap topTube, bottomTube, topTube2, bottomTube2;
     Bitmap berry;
     Display display;
     Point point;
     Vibrator v;
+    private final static int targetFps = 30;
+
+    private final static long intervalFps = 1000L;
+
+    private final Counter frameCounter = new Counter();
+    private final ElapsedTimer elapsedTimer = new ElapsedTimer();
+
+    private final DeltaStepper fpsUpdater = new DeltaStepper(intervalFps, this::fpsUpdate);
 
 
     int dWidth, dHeight;
@@ -115,8 +125,6 @@ public class Game {
         }
     };
 
-    private ReentrantLock scorelock;
-
     boolean passPipe = false;
     SharedPreferences sharedPreferences;
     int highScore=0;
@@ -126,6 +134,8 @@ public class Game {
 
     private int hasCollidedBerry;
     private int hasCollidedBomb;
+    private int currentTube = 1;
+    Timer timer;
 
 
 
@@ -135,7 +145,6 @@ public class Game {
         this.useCanvas = useCanvas;
         this.context = context;
         handler = new Handler();
-        scorelock = new ReentrantLock();
 
         background = BitmapFactory.decodeResource(context. getResources(), R.drawable.background);
         pause_button = BitmapFactory.decodeResource(context.getResources(),R.drawable.pause_button);
@@ -145,6 +154,9 @@ public class Game {
 
         topTube = BitmapFactory.decodeResource(context.getResources(),R.drawable.top_tube);
         bottomTube = BitmapFactory.decodeResource(context.getResources(),R.drawable.bottom_tube);
+        topTube2 = BitmapFactory.decodeResource(context.getResources(),R.drawable.top_tube2);
+        bottomTube2 = BitmapFactory.decodeResource(context.getResources(),R.drawable.bottom_tube2);
+
         berry = BitmapFactory.decodeResource(context.getResources(),R.drawable.berry);
         bomb = BitmapFactory.decodeResource(context.getResources(),R.drawable.bomb);
 
@@ -190,7 +202,17 @@ public class Game {
         }
         sharedPreferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
          highScore= sharedPreferences.getInt("high_score", 0);
+         timer = new Timer();
+        timer.schedule(new TimerTask() {
+            public void run() {
+                currentTube = (currentTube + 1)%2;
+            }
+        }, 0, 5000);
 
+    }
+    private boolean fpsUpdate(long deltaTime) {
+        final double fractionTime = intervalFps / (double)deltaTime;
+        return false;
     }
 
     public void resize(int width, int height) {
@@ -256,8 +278,10 @@ public class Game {
             }, 50);
         }
 
-        if (gameStart == true && gameOver == false) {
 
+
+
+        if (gameStart == true && gameOver == false) {
             if (birdY < dHeight - birds[0].getHeight() || velocity < 0) {
                 velocity += gravity; //faster as it falls
                 birdY += velocity;
@@ -266,15 +290,25 @@ public class Game {
                 launchGameOver();
             }
             for(int i = 0 ; i < numberOfTubes; i++) {
-                tubeX[i] -=tubeVelocity;
-                if(tubeX[i] < -topTube.getWidth()){
+
+                tubeX[i] -= tubeVelocity;
+                if (tubeX[i] < -topTube.getWidth()) {
                     tubeX[i] += numberOfTubes * distanceBetweenTubes;
                     tubeY[i] = minTubeOffset + random.nextInt(maxTubeOffset - minTubeOffset + 1);
                 }
-                canvas.drawBitmap(birds[birdFrame], birdX,birdY,null);
+                canvas.drawBitmap(birds[birdFrame], birdX, birdY, null);
+                if (currentTube == 0){
+                    canvas.drawBitmap(topTube, tubeX[i], tubeY[i] - topTube.getHeight(), null);
+                } else{
+                    canvas.drawBitmap(topTube2, tubeX[i], tubeY[i] - topTube.getHeight(), null);
 
-                canvas.drawBitmap(topTube, tubeX[i], tubeY[i] - topTube.getHeight(), null);
-                canvas.drawBitmap(bottomTube, tubeX[i], tubeY[i] + gap, null);
+                }
+                if(currentTube == 0) {
+                    canvas.drawBitmap(bottomTube, tubeX[i], tubeY[i] + gap, null);
+                } else{
+                    canvas.drawBitmap(bottomTube2, tubeX[i], tubeY[i] + gap, null);
+
+                }
 
                 if( i % 2 == 0 ) {
                     if(berryFrame == 1) {
@@ -328,6 +362,7 @@ public class Game {
                             }
                         }
                     }
+
                 }
 
 
@@ -337,7 +372,6 @@ public class Game {
                     if(birdY - birds[birdFrame].getHeight()/6  <= tubeY[i] || birdY + birds[birdFrame].getHeight()>= tubeY[i] + gap) {
                         gameOver = true;
                         long[] pattern = {0, 100, 1000};
-                        System.out.println("HWERLRELEA");
                         v.vibrate(pattern, 0);
                       try{Thread.sleep(300);}catch(InterruptedException e){}
 
@@ -367,8 +401,24 @@ public class Game {
 
     }
 
-    public void update() {
+    public long getSleepTime() {
+        final double targetFrameTime = (1000.0 / targetFps);
+        final long updateEndTime = System.currentTimeMillis();
+        final long updateTime = updateEndTime - elapsedTimer.getUpdateStartTime();
+        return Math.round(targetFrameTime - updateTime);
     }
+
+
+    public void update() {
+        final long deltaTime = elapsedTimer.progress();
+        if (deltaTime <= 0) {
+            return;
+        }
+
+        fpsUpdater.update(deltaTime);
+
+    }
+
     private void launchGameOver(){
         handler.removeCallbacksAndMessages(null);
         if (score > highScore){
@@ -376,7 +426,7 @@ public class Game {
             editor.putInt("high_score", score);
             editor.apply();
         }
-        Intent intent = new Intent(context, GameOver.class);
+        Intent intent = new Intent(context, GameOverActivity.class);
         intent.putExtra("score", score);
         if(score > highScore) {
             intent.putExtra("highScore", score);
@@ -426,7 +476,7 @@ public class Game {
 
     private void launchGamePause(){
         handler.removeCallbacksAndMessages(null);
-        Intent intent = new Intent(context, GamePause.class);
+        Intent intent = new Intent(context, GamePauseActivity.class);
         context.startActivity(intent);
         //((Activity) context).finish();
     }
@@ -462,17 +512,8 @@ public class Game {
     }
 
 
-    public ReentrantLock getScoreLock(){
-        return scorelock;
-    }
-
     public void click(MotionEvent event) {
         int action = event.getAction();
-//        if(action == MotionEvent.ACTION_DOWN){
-//            velocity = -30;
-//            gameStart = true; //only start upon first click
-//
-//        }
 
         if (action == MotionEvent.ACTION_DOWN) {
             float x = event.getX();
@@ -493,9 +534,6 @@ public class Game {
             }
         }
 
-    }
-    public void setPaused(boolean paused) {
-        gamePaused = paused;
     }
 
     public int getScore (){
