@@ -15,9 +15,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.os.Handler;
@@ -28,6 +31,8 @@ import android.view.MotionEvent;
 import android.os.Vibrator;
 import android.widget.ImageButton;
 import android.view.View;
+
+import androidx.core.content.ContextCompat;
 
 import com.example.flappybird.database.FeedReaderContract;
 import com.example.flappybird.database.FeedReaderContract2;
@@ -137,6 +142,10 @@ public class Game {
     private int currentTube = 1;
     Timer timer;
 
+    Paint paint;
+    Paint paint2;
+
+    Paint outline;
 
 
     public Game(final Predicate<Consumer<Canvas>> useCanvas, Context context, FeedReaderDbHelper dbHelper) {
@@ -166,6 +175,11 @@ public class Game {
 //        dHeight= point.y;
         rect = new Rect(0,0,dWidth,dHeight);
 
+        paint = new Paint();
+        paint.setColorFilter(new PorterDuffColorFilter(Color.argb(255, 100, 100, 100), PorterDuff.Mode.SRC_IN));
+
+        paint2 = new Paint();
+        paint2.setColorFilter(new PorterDuffColorFilter(Color.argb(255, 0, 100, 0), PorterDuff.Mode.SRC_IN));
 
         birds = new Bitmap[2];
         birds[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.flappy_bird);
@@ -298,15 +312,16 @@ public class Game {
                 }
                 canvas.drawBitmap(birds[birdFrame], birdX, birdY, null);
                 if (currentTube == 0){
-                    canvas.drawBitmap(topTube, tubeX[i], tubeY[i] - topTube.getHeight(), null);
+                    canvas.drawBitmap(topTube, tubeX[i], tubeY[i] - topTube.getHeight(), paint2);
+
                 } else{
-                    canvas.drawBitmap(topTube2, tubeX[i], tubeY[i] - topTube.getHeight(), null);
+                    canvas.drawBitmap(topTube2, tubeX[i], tubeY[i] - topTube.getHeight(), paint);
 
                 }
                 if(currentTube == 0) {
-                    canvas.drawBitmap(bottomTube, tubeX[i], tubeY[i] + gap, null);
+                    canvas.drawBitmap(bottomTube, tubeX[i], tubeY[i] + gap, paint2);
                 } else{
-                    canvas.drawBitmap(bottomTube2, tubeX[i], tubeY[i] + gap, null);
+                    canvas.drawBitmap(bottomTube2, tubeX[i], tubeY[i] + gap, paint);
 
                 }
 
