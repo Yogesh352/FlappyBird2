@@ -11,13 +11,8 @@ public class ScoreKeepingThread extends Thread {
     @Override
     public void run() {
         while (running) {
-            System.out.println();
+                //increments the score when it detects either of these conditions
                 if (game.getPassedPipe() || game.getCollideBerry() == 1) {
-
-                        System.out.println("HEllo I am here");
-
-
-
                         // Update score here
                         int currentScore = game.getScore();
                         currentScore += 1;
@@ -28,11 +23,8 @@ public class ScoreKeepingThread extends Thread {
                         // Notify waiting threads
                         game.setPassedPipe(false);
 
-
-
-
-
             } else if (game.getCollideBomb() ==1) {
+                    //decrement the score if this condition is satisfied
 
                     int currentScore = game.getScore();
                     currentScore -= 1;
@@ -42,17 +34,7 @@ public class ScoreKeepingThread extends Thread {
                     }
                     // Notify waiting threads
                     game.setPassedPipe(false);
-
-
-
-
-
                 }
-
-
-
-
-
         }
     }
 

@@ -18,6 +18,7 @@ public class GamePauseActivity extends AppCompatActivity {
     }
     public void resume(View view) {
         Intent intent = new Intent(GamePauseActivity.this, GameActivity.class);
+        //return to the old state and not create a new gameactivity
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
 
@@ -26,6 +27,8 @@ public class GamePauseActivity extends AppCompatActivity {
 
     public void restart(View view){
         Intent intent = new Intent(GamePauseActivity.this, MainActivity.class);
+        //flags so that the application returns to the initial state of the mainactivity and a new
+        //main activity is not created
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         startActivity(intent);

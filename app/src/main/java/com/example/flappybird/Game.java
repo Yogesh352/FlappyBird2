@@ -1,8 +1,5 @@
 package com.example.flappybird;
 
-import static android.content.ContentValues.TAG;
-import static android.content.Context.VIBRATOR_SERVICE;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentValues;
@@ -14,36 +11,25 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
+
 import android.graphics.Paint;
-import android.graphics.Point;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
-import android.graphics.PorterDuffXfermode;
+
 import android.graphics.Rect;
 import android.os.Handler;
 import android.text.TextPaint;
 import android.util.Log;
-import android.view.Display;
 import android.view.MotionEvent;
 import android.os.Vibrator;
-import android.widget.ImageButton;
-import android.view.View;
 
-import androidx.core.content.ContextCompat;
+
 
 import com.example.flappybird.database.FeedReaderContract;
 import com.example.flappybird.database.FeedReaderContract2;
 import com.example.flappybird.database.FeedReaderDbHelper;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -51,101 +37,111 @@ import java.util.function.Predicate;
  * A class representing the main logic of this demo.
  */
 public class Game {
-
+    //mutex to control the updating of the score. There is a need for the lock because there
+    // are various aspects of the game that could affect the score. For example, going past a pipe
+    // or colliding with a berry would increment the score by 1. Meanwhile, a collision with the
+    // bomb will result in the score reducing by 1. There might be  instances where the bird
+    // collides with the berry and the bomb at once. Thus, a lock is necessary to prevent
+    // the shared resource of score being updated at the same time.
     private final Object mutex = new Object();
 
     private final Predicate<Consumer<Canvas>> useCanvas;
 
+    //textpaint for the score
     private final Paint textPaint = new TextPaint();
 
 
-    private FeedReaderDbHelper dbHelper;
+    private final FeedReaderDbHelper dbHelper;
 
 
-    Handler handler;
-    Context context;
-    final int UPDATE_MILLIS = 30;
-    Bitmap background;
+    private final Handler handler;
+    private final Context context;
+    private final int UPDATE_MILLIS = 30;
 
-    Bitmap pause_button;
-    Bitmap bomb;
+    //bitmaps to draw the various elements shown on the screen itself
+    private final Bitmap background;
 
-    Bitmap topTube, bottomTube, topTube2, bottomTube2;
-    Bitmap berry;
-    Display display;
-    Point point;
-    Vibrator v;
+    private Bitmap pause_button;
+    private final Bitmap bomb;
+
+    private final Bitmap topTube, bottomTube, topTube2, bottomTube2;
+    private final Bitmap berry;
+
+    private final Bitmap[] birds;
+
+    //Controls the vibration upon collision
+    private final Vibrator v;
     private final static int targetFps = 30;
 
     private final static long intervalFps = 1000L;
 
-    private final Counter frameCounter = new Counter();
     private final ElapsedTimer elapsedTimer = new ElapsedTimer();
 
     private final DeltaStepper fpsUpdater = new DeltaStepper(intervalFps, this::fpsUpdate);
 
-
+    //screen width and height
     int dWidth, dHeight;
-    Rect rect;
-    private ScoreKeepingThread scoreKeepingThread;
+    private final Rect rect;
 
-    Bitmap[] birds;
+    //birdFrame controls the flapping of the bird
+    private int birdFrame = 0;
 
-    int birdFrame = 0;
-    int berryFrame = 0;
-    int bombFrame = 0;
-    int velocity = 0;
-    int gravity = 3;
+    //berryFrame and bombFrame creates the bouncing effect of the elements
+    private int berryFrame = 0;
+    private int bombFrame = 0;
 
-    int birdX, birdY;
+    //velocity and gravity of the bird
+    private int velocity = 0;
+    private final int gravity = 3;
 
-    boolean gameStart = false;
-    boolean gameOver = false;
-    boolean gamePaused = false;
+    //X and Y coordinates of the bird itself
+    private int birdX, birdY;
 
-    int gap = 400; //distance between top and bottom tube
-    int minTubeOffset, maxTubeOffset;
-    int numberOfTubes = 4;
+    //variables to track the state of the game
+    private boolean gameStart = false;
+    private boolean gameOver = false;
+    private boolean gamePaused = false;
 
-    int distanceBetweenTubes;
+    //Tube properties
+    private final int gap = 400;
+    private final int minTubeOffset, maxTubeOffset;
+    private final int numberOfTubes = 4;
+    private final int tubeVelocity = 12;
 
-    int[] tubeX = new int[numberOfTubes];
-    int[] tubeY = new int [numberOfTubes];
-    int[] berryX;
-    int[] berryY;
+    private final int distanceBetweenTubes;
 
-    int[] bombX;
-    int[] bombY;
+    //creating the X and Y coordinates of the tubes and re-rendering it using a for loop
+    private final int[] tubeX = new int[numberOfTubes];
+    private final int[] tubeY = new int [numberOfTubes];
+
+    //control the location of the berries and the bombs
+    private final int[] berryX;
+    private final int[] berryY;
+
+    private final int[] bombX;
+    private final int[] bombY;
 
 
+    private final Random random;
 
-    Random random;
+    //Keep track of the score
+    private int score = 0;
+    private Runnable runnable = () -> {};
 
-    int tubeVelocity = 12;
-    int score = 0;
-    Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            //Do something after 100ms
-        }
-    };
+    //Boolean to check if the bird has passed the pipe so that the score can be incremented
+    private boolean passPipe = false;
 
-    boolean passPipe = false;
-    SharedPreferences sharedPreferences;
-    int highScore=0;
+    //SharedPreferences is used to store the state of the high score.
+    private final SharedPreferences sharedPreferences;
+    private int highScore;
 
-    private int x;
-    private int y;
-
+    //Check for collision with berries and bombs
     private int hasCollidedBerry;
     private int hasCollidedBomb;
+
+    //used to change the color of the pipe every 5 seconds
     private int currentTube = 1;
-    Timer timer;
-
-    Paint paint;
-    Paint paint2;
-
-    Paint outline;
+    private final Timer timer;
 
 
     public Game(final Predicate<Consumer<Canvas>> useCanvas, Context context, FeedReaderDbHelper dbHelper) {
@@ -155,8 +151,10 @@ public class Game {
         this.context = context;
         handler = new Handler();
 
+        //draw out the various elements required for the gameplay
         background = BitmapFactory.decodeResource(context. getResources(), R.drawable.background);
         pause_button = BitmapFactory.decodeResource(context.getResources(),R.drawable.pause_button);
+
         int btnWidth = 250; // set the pause button width
         int btnHeight = 250; // set the pause button height
         pause_button = Bitmap.createScaledBitmap(pause_button, btnWidth, btnHeight, false);
@@ -168,45 +166,44 @@ public class Game {
 
         berry = BitmapFactory.decodeResource(context.getResources(),R.drawable.berry);
         bomb = BitmapFactory.decodeResource(context.getResources(),R.drawable.bomb);
-
-        point = new Point();
+        //get display height and width
         dWidth =  context.getResources().getDisplayMetrics().widthPixels;
         dHeight= context.getResources().getDisplayMetrics().heightPixels;
-//        dHeight= point.y;
         rect = new Rect(0,0,dWidth,dHeight);
 
-        paint = new Paint();
-        paint.setColorFilter(new PorterDuffColorFilter(Color.argb(255, 100, 100, 100), PorterDuff.Mode.SRC_IN));
 
-        paint2 = new Paint();
-        paint2.setColorFilter(new PorterDuffColorFilter(Color.argb(255, 0, 100, 0), PorterDuff.Mode.SRC_IN));
 
         birds = new Bitmap[2];
+        //wings up
         birds[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.flappy_bird);
+        //wings down
         birds[1] = BitmapFactory.decodeResource(context.getResources(), R.drawable.flappy_bird2);
 
-        birdX  = dWidth/2 - birds[0].getWidth()/2; //controls the location by X axis
+        //starting position of the bird will be in the middle of the screen
+        birdX  = dWidth/2 - birds[0].getWidth()/2;
         birdY = dHeight/2 - birds[0].getHeight()/2;
         v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
 
+        //setting the distance between the tubes
         distanceBetweenTubes = dWidth*3/4;
-
 
         minTubeOffset = gap/2;
         maxTubeOffset= dHeight-minTubeOffset-gap;
 
         random = new Random();
 
+        //generating the initial X and Y coordinates of the tubes
         for(int i = 0; i < numberOfTubes; i++){
             tubeX[i] = dWidth + i*distanceBetweenTubes;
             tubeY[i] = minTubeOffset + random.nextInt(maxTubeOffset - minTubeOffset + 1);
         }
+
+        //randomly generate the X and Y coordinates of the berries and bombs
         berryX = random.ints(4, 390, 450).toArray();
         berryY = random.ints(4, 200, 400).toArray();
 
         bombX = random.ints(4, 390, 550).toArray();
         bombY = random.ints(4, 100, 1000).toArray();
-
 
         {
             textPaint.setAntiAlias(true);
@@ -214,9 +211,13 @@ public class Game {
             textPaint.setColor(0xFF000000);
             textPaint.setFakeBoldText(true);
         }
+
+        //Keep track of the high score and store it
         sharedPreferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
-         highScore= sharedPreferences.getInt("high_score", 0);
-         timer = new Timer();
+        highScore= sharedPreferences.getInt("high_score", 0);
+
+        //A timer that will result in the change of color every 5 seconds
+        timer = new Timer();
         timer.schedule(new TimerTask() {
             public void run() {
                 currentTube = (currentTube + 1)%2;
@@ -232,16 +233,13 @@ public class Game {
     public void resize(int width, int height) {
         this.dWidth = width;
         this.dHeight = height;
-
     }
-
 
     public void draw() {
         if (useCanvas.test(this::draw)) {
 
         }
     }
-
 
     @SuppressLint("DefaultLocale")
     private void draw(Canvas canvas) {
@@ -254,79 +252,67 @@ public class Game {
         int xPos = (canvas.getWidth() / 2);
         int yPos = (int) ((canvas.getHeight() / 4)) ;
 
+        //flapping effect of the bird
         if(birdFrame == 0){
             birdFrame  = 1;
         } else{
             birdFrame = 0;
         }
 
+        //bouncing effect of the berries and bombs
         if(berryFrame == 1){
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    berryFrame  = 0;
-                }
-            }, 50);
+            handler.postDelayed(() -> berryFrame  = 0, 50);
         } else if(berryFrame == 0){
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    berryFrame  = 1;
-                }
-            }, 50);
+            handler.postDelayed(() -> berryFrame  = 1, 50);
         }
 
         if(bombFrame == 1){
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    bombFrame  = 0;
-                }
-            }, 50);
+            handler.postDelayed(() -> bombFrame  = 0, 50);
         } else if(bombFrame == 0){
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    bombFrame  = 1;
-                }
-            }, 50);
+            handler.postDelayed(() -> bombFrame  = 1, 50);
         }
 
 
 
 
-        if (gameStart == true && gameOver == false) {
+        if (gameStart && !gameOver) {
             if (birdY < dHeight - birds[0].getHeight() || velocity < 0) {
-                velocity += gravity; //faster as it falls
+                //increment the velocity as it falls
+                velocity += gravity;
                 birdY += velocity;
             } else{
+                //when it hits the floor game ends
                 gameOver = true;
                 launchGameOver();
             }
+            //controls the generation of tubes, berries, bombs and controls the collision with these items
             for(int i = 0 ; i < numberOfTubes; i++) {
-
+                //tube generation and constant rendering
                 tubeX[i] -= tubeVelocity;
                 if (tubeX[i] < -topTube.getWidth()) {
                     tubeX[i] += numberOfTubes * distanceBetweenTubes;
                     tubeY[i] = minTubeOffset + random.nextInt(maxTubeOffset - minTubeOffset + 1);
                 }
+
                 canvas.drawBitmap(birds[birdFrame], birdX, birdY, null);
+
+                //Change of color for the tubes which is controlled by the currentTube variable that alternates every 5 seconds
                 if (currentTube == 0){
-                    canvas.drawBitmap(topTube, tubeX[i], tubeY[i] - topTube.getHeight(), paint2);
-
+                    canvas.drawBitmap(topTube, tubeX[i], tubeY[i] - topTube.getHeight(), null);
                 } else{
-                    canvas.drawBitmap(topTube2, tubeX[i], tubeY[i] - topTube.getHeight(), paint);
-
+                    canvas.drawBitmap(topTube2, tubeX[i], tubeY[i] - topTube.getHeight(), null);
                 }
                 if(currentTube == 0) {
-                    canvas.drawBitmap(bottomTube, tubeX[i], tubeY[i] + gap, paint2);
+                    canvas.drawBitmap(bottomTube, tubeX[i], tubeY[i] + gap, null);
                 } else{
-                    canvas.drawBitmap(bottomTube2, tubeX[i], tubeY[i] + gap, paint);
+                    canvas.drawBitmap(bottomTube2, tubeX[i], tubeY[i] + gap, null);
 
                 }
 
+                //Generation of berries and bombs at every other tube
                 if( i % 2 == 0 ) {
                     if(berryFrame == 1) {
+                        //draw if the berry has not been collided with
                         if(hasCollidedBerry == 0) {
                             canvas.drawBitmap(berry, tubeX[i] + berryX[i], tubeY[i] + berryY[i], null);
                         }
@@ -335,14 +321,17 @@ public class Game {
                             canvas.drawBitmap(berry, tubeX[i] + berryX[i], tubeY[i] + berryY[i] - 20, null);
                         }
                     }
+                    //checks if the coordinates of the bird and the berries overlap. An overlap would indicate a collision
                     if((birdX>=tubeX[i] + berryX[i] - berry.getWidth()/2 && birdX <=tubeX[i] + berryX[i] + berry.getWidth())){
                         if(berryFrame == 0 && hasCollidedBerry == 0) {
                             if (birdY - birds[birdFrame].getHeight() <= tubeY[i] + berryY[i] && birdY + birds[birdFrame].getHeight() >= tubeY[i] + berryY[i]) {
+                                //grab the lock if available to update the score through the scoreKeepingThread
                                 synchronized (mutex) {
                                     birdCollideBerry();
                                 }
                             }
                         }else if(berryFrame == 1 && hasCollidedBerry == 0){
+                            //same idea as the previous but handles when the berry is in the other frame
                             if(birdY-birds[birdFrame].getHeight() <= tubeY[i] + berryY[i] - 20  && birdY+birds[birdFrame].getHeight() >= tubeY[i] + berryY[i] - 20){
                                 synchronized (mutex) {
                                     birdCollideBerry();
@@ -352,6 +341,7 @@ public class Game {
                     }
                 }
 
+                //performs the same as the code for berries. However, a collision with a bomb will result in the reduction of the score by 1
                 if( i % 2 == 0) {
                     if(bombFrame == 1) {
                         if(hasCollidedBomb == 0) {
@@ -381,21 +371,23 @@ public class Game {
                 }
 
 
-
+                //Controls the collision of the bird with the tube
                 if(birdX>=tubeX[i] - topTube.getWidth()/2 && birdX <=tubeX[i] + topTube.getWidth()){
-                    //adjust to make the contact thingy better
                     if(birdY - birds[birdFrame].getHeight()/6  <= tubeY[i] || birdY + birds[birdFrame].getHeight()>= tubeY[i] + gap) {
                         gameOver = true;
+
+                        //the device vibrates when the bird collides with the tube
                         long[] pattern = {0, 100, 1000};
                         v.vibrate(pattern, 0);
-                      try{Thread.sleep(300);}catch(InterruptedException e){}
+                        try{Thread.sleep(300);}catch(InterruptedException e){}
+                        v.cancel();
 
-                      v.cancel();
-
+                        //function to launch the game over page
                         launchGameOver();
                     }
                 }
 
+                //Check if the coordinates of the bird is past the pipe and if so it can grab the mutex and increment the score
                 if(birdX >=tubeX[i] + topTube.getWidth() -5 && birdX <=tubeX[i] + topTube.getWidth() + 10){
                     hasCollidedBerry = 0;
                     hasCollidedBomb = 0;
@@ -407,10 +399,13 @@ public class Game {
             }
         }
 
-        if(gameStart == false) {
+        //the initial view before the user taps on the screen to start the game
+        if(!gameStart) {
            canvas.drawBitmap(birds[0], birdX,birdY,null);
            handler.postDelayed(runnable, UPDATE_MILLIS);
         }
+
+        //the score as well as the pause button displayed on the screen
         canvas.drawText(Integer.toString(score), xPos, yPos, textPaint);
         canvas.drawBitmap(pause_button, 0, 0, null);
 
@@ -423,29 +418,32 @@ public class Game {
         return Math.round(targetFrameTime - updateTime);
     }
 
-
     public void update() {
         final long deltaTime = elapsedTimer.progress();
         if (deltaTime <= 0) {
             return;
         }
-
         fpsUpdater.update(deltaTime);
-
     }
 
+    //function the handles when the game is over. When the bird collides with the pipe or touches the floor
     private void launchGameOver(){
         handler.removeCallbacksAndMessages(null);
+
+        //update the high score if necessary
         if (score > highScore){
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putInt("high_score", score);
             editor.apply();
         }
+        //send both the score and the high score to the game over screen
         Intent intent = new Intent(context, GameOverActivity.class);
         intent.putExtra("score", score);
         if(score > highScore) {
+            //send new high score if the old one has been beaten
             intent.putExtra("highScore", score);
         }else{
+            //send old high score
             intent.putExtra("highScore", highScore);
         }
 
@@ -472,6 +470,7 @@ public class Game {
         values = new ContentValues();
         values.put(FeedReaderContract2.FeedEntry.COLUMN_NAME_TITLE, player);
         values.put(FeedReaderContract2.FeedEntry.COLUMN_NAME_SUBTITLE, highScore);
+
         //update high score in databasae
         if (count > 0) {
             int updated_rows = db.update(
@@ -484,18 +483,19 @@ public class Game {
             newRowId = db.insert(FeedReaderContract2.FeedEntry.TABLE_NAME, null, values);
         }
 
-
         context.startActivity(intent);
         ((Activity) context).finish();
     }
 
+    //function to handle when the pause button is clicked
     private void launchGamePause(){
         handler.removeCallbacksAndMessages(null);
         Intent intent = new Intent(context, GamePauseActivity.class);
         context.startActivity(intent);
-        //((Activity) context).finish();
     }
 
+    //function the different collisions and events that affect the score
+    //these are then checked constantly in the scoreKeepingThread using the getter functions to update the score accordingly
     public void birdPassedPipe() {
         passPipe = true;
     }
@@ -526,7 +526,7 @@ public class Game {
         this.hasCollidedBomb = hasCollidedBomb;
     }
 
-
+    //handles the click event
     public void click(MotionEvent event) {
         int action = event.getAction();
 
@@ -543,27 +543,21 @@ public class Game {
                     launchGamePause();
                 }
             } else {
-                // handle non-pause button click
+                // handle non-pause button click. Velocity decreases as the bird will move up
                 velocity = -30;
-                gameStart = true; //only start upon first click
+                //only start the game upon first click
+                gameStart = true;
             }
         }
 
     }
 
+    //getters and setters for the scorekeepingthread to maintain.
     public int getScore (){
         return score;
     }
     public void setScore (int score){
         this.score = score;
-    }
-
-    public int getHighScore (){
-        return  highScore;
-    }
-
-    public void setHighScore(int highScore){
-        this.highScore = highScore;
     }
 
 }
