@@ -84,8 +84,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             game.click(event);
             return true;
         });
-
-
     }
 
 

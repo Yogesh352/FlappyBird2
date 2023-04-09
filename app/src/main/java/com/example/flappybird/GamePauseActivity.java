@@ -7,7 +7,7 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class GamePause extends AppCompatActivity {
+public class GamePauseActivity extends AppCompatActivity {
     private Game game;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState){
@@ -17,7 +17,7 @@ public class GamePause extends AppCompatActivity {
 
     }
     public void resume(View view) {
-        Intent intent = new Intent(GamePause.this, GameActivity.class);
+        Intent intent = new Intent(GamePauseActivity.this, GameActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
 
@@ -25,7 +25,7 @@ public class GamePause extends AppCompatActivity {
     }
 
     public void restart(View view){
-        Intent intent = new Intent(GamePause.this, MainActivity.class);
+        Intent intent = new Intent(GamePauseActivity.this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         startActivity(intent);
