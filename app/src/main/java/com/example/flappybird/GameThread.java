@@ -9,8 +9,6 @@ public class GameThread extends Thread {
         this.game = game;
     }
 
-    private static GameThread instance;
-
     public void startLoop() {
         isRunning = true;
         start();

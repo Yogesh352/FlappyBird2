@@ -23,35 +23,31 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-//        System.out.println("returning herere????");
+        //button that controls the music playing in the background
         toggleMusic = findViewById(R.id.toggle_music);
 
         mediaPlayer = MediaPlayer.create(this, R.raw.background_music);
         mediaPlayer.setLooping(true);
 
-        toggleMusic.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-                    mediaPlayer.pause();
-                } else if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
-                    mediaPlayer.start();
-                }
+        //upon a click the music will turn on and off accordingly
+        toggleMusic.setOnClickListener(v -> {
+            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                mediaPlayer.pause();
+            } else if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
+                mediaPlayer.start();
             }
         });
 
 
     }
-
+    //a onResume function is implemented so that the mediaPlayer is not created again and they can turn off
+    //the music when they return to the main page
     @Override
     protected void onResume() {
         super.onResume();
-//        System.out.println("HEllo");
-
     }
 
-
+    //Open the GameActivity upon clicking on the play button
     public void startGame(View view){
         Intent intent = new Intent(this, GameActivity.class);
         startActivity(intent);

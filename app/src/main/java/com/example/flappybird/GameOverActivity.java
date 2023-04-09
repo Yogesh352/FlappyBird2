@@ -14,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity;
 public class GameOverActivity  extends AppCompatActivity {
     TextView score;
     TextView highScore;
-    private Game game;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState){
@@ -33,6 +32,8 @@ public class GameOverActivity  extends AppCompatActivity {
 
     public void restart(View view){
         Intent intent = new Intent(GameOverActivity.this, MainActivity.class);
+        //flags so that the application returns to the initial state of the mainactivity and a new
+        //main activity is not created
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         startActivity(intent);
