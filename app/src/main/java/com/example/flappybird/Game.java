@@ -199,10 +199,10 @@ public class Game {
         }
 
         //randomly generate the X and Y coordinates of the berries and bombs
-        berryX = random.ints(4, 390, 450).toArray();
+        berryX = random.ints(4, 390, 420).toArray();
         berryY = random.ints(4, 200, 400).toArray();
 
-        bombX = random.ints(4, 390, 550).toArray();
+        bombX = random.ints(4, 390, 480).toArray();
         bombY = random.ints(4, 100, 1000).toArray();
 
         {
@@ -306,7 +306,6 @@ public class Game {
                     canvas.drawBitmap(bottomTube, tubeX[i], tubeY[i] + gap, null);
                 } else{
                     canvas.drawBitmap(bottomTube2, tubeX[i], tubeY[i] + gap, null);
-
                 }
 
                 //Generation of berries and bombs at every other tube
@@ -316,7 +315,7 @@ public class Game {
                         if(hasCollidedBerry == 0) {
                             canvas.drawBitmap(berry, tubeX[i] + berryX[i], tubeY[i] + berryY[i], null);
                         }
-                    }else if (berryFrame == 0) {
+                    } else if (berryFrame == 0) {
                         if(hasCollidedBerry == 0) {
                             canvas.drawBitmap(berry, tubeX[i] + berryX[i], tubeY[i] + berryY[i] - 20, null);
                         }
@@ -330,7 +329,7 @@ public class Game {
                                     birdCollideBerry();
                                 }
                             }
-                        }else if(berryFrame == 1 && hasCollidedBerry == 0){
+                        } else if(berryFrame == 1 && hasCollidedBerry == 0){
                             //same idea as the previous but handles when the berry is in the other frame
                             if(birdY-birds[birdFrame].getHeight() <= tubeY[i] + berryY[i] - 20  && birdY+birds[birdFrame].getHeight() >= tubeY[i] + berryY[i] - 20){
                                 synchronized (mutex) {
@@ -375,13 +374,11 @@ public class Game {
                 if(birdX>=tubeX[i] - topTube.getWidth()/2 && birdX <=tubeX[i] + topTube.getWidth()){
                     if(birdY - birds[birdFrame].getHeight()/6  <= tubeY[i] || birdY + birds[birdFrame].getHeight()>= tubeY[i] + gap) {
                         gameOver = true;
-
                         //the device vibrates when the bird collides with the tube
                         long[] pattern = {0, 100, 1000};
                         v.vibrate(pattern, 0);
                         try{Thread.sleep(300);}catch(InterruptedException e){}
                         v.cancel();
-
                         //function to launch the game over page
                         launchGameOver();
                     }
@@ -471,7 +468,7 @@ public class Game {
         values.put(FeedReaderContract2.FeedEntry.COLUMN_NAME_TITLE, player);
         values.put(FeedReaderContract2.FeedEntry.COLUMN_NAME_SUBTITLE, highScore);
 
-        //update high score in databasae
+        //update high score in database
         if (count > 0) {
             int updated_rows = db.update(
                     FeedReaderContract2.FeedEntry.TABLE_NAME,
