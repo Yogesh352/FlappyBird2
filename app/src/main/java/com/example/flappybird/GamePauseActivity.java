@@ -21,7 +21,6 @@ public class GamePauseActivity extends AppCompatActivity {
         //return to the old state and not create a new gameactivity
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
-
         finish();
     }
 
