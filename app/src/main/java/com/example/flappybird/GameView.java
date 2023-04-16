@@ -1,20 +1,9 @@
 package com.example.flappybird;
 
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Point;
-import android.app.Activity;
 
-import android.graphics.BitmapFactory;
 import android.graphics.Rect;
-import android.text.Layout;
-import android.text.StaticLayout;
-import android.text.TextPaint;
-import android.view.Display;
-import android.view.MotionEvent;
+
 import android.view.SurfaceView;
 import android.view.SurfaceHolder;
 
@@ -24,7 +13,6 @@ import android.graphics.Canvas;
 
 import com.example.flappybird.database.FeedReaderDbHelper;
 
-import java.util.Random;
 import java.util.function.Consumer;
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
@@ -37,11 +25,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private GameThread gameThread;
     private final Game game;
 
-    private FeedReaderDbHelper dbHelper;
+    private final FeedReaderDbHelper dbHelper;
 
-//    private void sendNotification() {
-//        NotificationPublisher.showNotification(getContext());
-//    }
 
     private boolean useCanvas(final Consumer<Canvas> onDraw) {
         boolean result = false;

@@ -8,7 +8,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class GamePauseActivity extends AppCompatActivity {
-    private Game game;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState){
 

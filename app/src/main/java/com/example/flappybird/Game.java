@@ -95,7 +95,8 @@ public class Game {
     private final int gravity = 3;
 
     //X and Y coordinates of the bird itself
-    private int birdX, birdY;
+    private final int birdX;
+    private int birdY;
 
     //variables to track the state of the game
     private boolean gameStart = false;
@@ -126,14 +127,14 @@ public class Game {
 
     //Keep track of the score
     private int score = 0;
-    private Runnable runnable = () -> {};
+    private final Runnable runnable = () -> {};
 
     //Boolean to check if the bird has passed the pipe so that the score can be incremented
     private boolean passPipe = false;
 
     //SharedPreferences is used to store the state of the high score.
     private final SharedPreferences sharedPreferences;
-    private int highScore;
+    private final int highScore;
 
     //Check for collision with berries and bombs
     private int hasCollidedBerry;
@@ -236,9 +237,7 @@ public class Game {
     }
 
     public void draw() {
-        if (useCanvas.test(this::draw)) {
-
-        }
+        if (useCanvas.test(this::draw)) {}
     }
 
     @SuppressLint("DefaultLocale")
@@ -451,7 +450,6 @@ public class Game {
         values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_TITLE, player);
         values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_SUBTITLE, score);
         long newRowId = db.insert(FeedReaderContract.FeedEntry.TABLE_NAME, null, values);
-//        System.out.println("new record " + newRowId);
 
         String[] selectionArgs = { player };
         String selection = FeedReaderContract2.FeedEntry.COLUMN_NAME_TITLE + " LIKE ?";
