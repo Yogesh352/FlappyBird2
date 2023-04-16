@@ -1,11 +1,9 @@
 package com.example.flappybird;
 
-import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -15,6 +13,7 @@ public class GameOverActivity  extends AppCompatActivity {
     TextView score;
     TextView highScore;
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState){
 

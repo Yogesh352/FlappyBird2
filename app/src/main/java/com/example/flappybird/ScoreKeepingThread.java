@@ -1,7 +1,7 @@
 package com.example.flappybird;
 
 public class ScoreKeepingThread extends Thread {
-    private Game game;
+    private final Game game;
     private volatile boolean running = true;
 
     public ScoreKeepingThread(Game game) {
